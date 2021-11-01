@@ -1,0 +1,52 @@
+- name: Windows Patches
+  hosts: all
+  vars:
+    ansible_port: 5986
+    ansible_connection: winrm
+    ansible_winrm_transport: credssp
+    ansible_winrm_server_cert_validation: ignore
+    categories:
+      - SecurityUpdates
+      - CriticalUpdates
+  tasks:
+    - block:
+      - name: apply windows updates
+        win_updates:
+          category_name: "{{ categories | default([]) }}"
+          blacklist: "{{ blacklist | default([]) }}"
+          whitelist: "{{ whitelist | default([]) }}"
+          reboot: no
+        register: patching_output
+
+      - name: reboot if necessary
+        win_reboot:
+        when:
+        - patching_output.reboot_required
+        - reboot_method == 'auto'
+        - patch_window == reboot_window
+
+      - name: check missing updates
+        win_updates:
+          category_name: "{{ categories | default([]) }}"
+          state: searched
+        register: missing_output
+
+      - name: warn if missed updates
+        debug:
+          msg: "Yo yo yo - We missed some ( {{ missing_output.found_update_count }} updates ) "
+        when:
+        - missing_output.found_update_count is defined
+        - missing_output.found_update_count > 0
+
+      - name: list of updates not installed (skipped)
+        debug:
+          msg: "{{ item }}"
+        loop:
+          - "{{ missing_output.updates }}"
+        when:
+        - missing_output.found_update_count is defined
+        - missing_output.found_update_count > 0
+        - missing_output.updates is defined
+      when:
+        - patch_enabled
+        - patch_method == 'auto'

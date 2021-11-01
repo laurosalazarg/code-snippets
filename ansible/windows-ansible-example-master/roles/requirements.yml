@@ -1,0 +1,22 @@
+#- src: juju4.harden_windows
+
+- src: https://github.com/oatakan/ansible-role-ec2
+  version: origin/master
+
+- src: https://github.com/oatakan/ansible-role-vmware
+  version: origin/master
+
+- src: https://github.com/oatakan/ansible-role-ovirt
+  version: origin/master
+
+- src: https://github.com/oatakan/ansible-role-azure
+  version: origin/master
+
+- src: https://github.com/oatakan/ansible-role-openstack
+  version: origin/master
+
+- src: https://github.com/oatakan/ansible-role-os-stack
+  version: origin/master
+
+- src: https://github.com/oatakan/ansible-role-windows-ad-controller
+  version: origin/master

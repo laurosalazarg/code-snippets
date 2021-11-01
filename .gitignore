@@ -1,0 +1,5 @@
+*.exe
+*.mat
+
+*python-notes.py
+*.ipynb

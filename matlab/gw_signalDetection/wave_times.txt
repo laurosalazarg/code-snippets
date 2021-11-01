@@ -1,0 +1,126 @@
+ murphyettal_2009
+Wave     Time    scale at snr=0.5, runs, L1 snr = 0.07, op scales used,radnum,LUMINOSITY, allstats, xx, SNR
+grw_
+12_1     0.9883	   193, 190:5:235, 30:5:75 , 30 floor   dcheck ,40,3, 1.8, x  xx, 0.8
+12_2     0.8700       ,          , 25:5:70 , 23 ceil    dcheck ,30,2, 2.8, x  xx  1.2
+12_3     0.7750       ,          , 5:5:50  , 8 floor           ,35,7, 3.2, x  xx  1.6
+
+15_3     1.2812       ,          , 5:5:50  , 8 ceil            ,35,7, 3.7, x xx   1.1
+15_4     1.1900       ,          , 5:5:50  , 5 floor           ,25,5, 4.0, x  xx  2.1
+
+20_3     1.2834       ,          , 15:5:60 , 18 ceil           ,30,4, 3.8, x xx   1.5
+
+40_10    1.2769       ,          , 10:5:55 , 13 ceil           ,25, 4, 10.0,x  xx  1.4   no S1norm
+40_12    1.1150       ,          , 5:5:50  , 10 ceil           ,20,4, 12.0, x  xx  1.4
+40_13    0.7900       ,          , 5:5:50  ,  5 floor          ,15,3, 13.0, x  xx  0.8
+40_6     1.2042       ,          , 25:5:70 , 28 floor          50,6      , x  xx   1.0		missing mat
+					changed op to 50				           
+
+op  plot_gen4
+folder figures
+may7_op
+
+
+allstats.m
+figuresfinal_may7   
+	figures ts_cond, ts_darm, psd  cond wien darm, spec cond wien darm
+
+================== murphyetal2009_fix ===========
+missing sets by luminosity
+
+Wave     Time    runs, L1 snr = 0.07, op scales used,radnum, allstats
+grw_
+12_2_2  1.0452   40:5:85	,46 floor, 40, 1,x   0.7
+ 
+15_3_2  1.2818   20:5:65	,21 floor, 35, 4,x  1.1
+changed time to  1.282
+	
+15_3_4  1.2573   20:5:65	,21 ceil   35, 4, x 1.0
+
+20_3_2  1.2568  20:5:65		,24 floor, 35, 4, x 1.4
+20_3_4  1.2605	10:5:55		,13 floor, 25, 4, x 1.8
+20_3_6  1.2571  10:5:55		,15 floor, 25, 4, x 1.5
+
+
+=================
+
+
+may7_op_2
+
+12_3  prev 35
+15_4 prev 25
+40_6 prev 50
+
+.33  5.23 2.92
+.17 .17   3.37
+
+
+=====================================
+
+S6 TESTS
+changed startsmapgen = 1
+
+
+================== murphyetal2009_fix ===========
+missing sets by luminosity
+*floor
+Wave     Time    runs, L1 snr = 0.07, op scales used,radnum, allstats
+grw_
+12_2_2  1.0452   40:5:85	,40,1
+15_3_2  1.2818   20:5:65    , 35,4
+15_3_4  1.2573   20:5:65	,35,4             glitches near 0
+
+20_3_2  1.2568  20:5:65		,35,4
+20_3_4  1.2605	10:5:55		,25,5
+20_3_6  1.2571  10:5:55		,25,4
+
+40_6     1.2042       ,          , 25:5:70,	50		at 50, highest is glitch 0, changed to 40
+12_1     0.9883	   193, 190:5:235, 30:5:75 
+
+
+
+
+time series plot H1 V1 L1 and PSD
+
+LVC REGISTRATION CODE
+
+l-130705-680624
+
+
+startmapsgen =3   40_12
+
+
+
++ ======================================================================================
+
+
+
+1. Block diagram of the pipeline. 
+
+x2. Grid of the SN signals used , plotSignals.m
+
+3. Data conditioning ==> comparative spectrograms of (a) raw data; (b) traditional data conditioning and (c) data conditioning with HRNR
+
+raw data	Sig1
+trad cond   S1norm
+HRNR		esHRNR1
+DARM		dat_white_DARM1
+
+
+-- For H1, H2 and L1 (select low snr)
+4. Skymap
+
+5. Radial statistics graph 
+Note: For 4 and 5, please demonstrate about 6 different cases. 
+
+
+
+one figure with LIGO noise and SN signal injection.
+
+
+
+
+
+
+
+

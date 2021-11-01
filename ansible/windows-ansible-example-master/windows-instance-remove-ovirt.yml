@@ -1,0 +1,14 @@
+- name: remove vms
+  hosts: all
+  gather_facts: False
+  connection: local
+  vars:
+    ansible_ssh_password: ''
+  become: no
+  vars_files:
+    - win-nodes-ovirt.yml
+
+  roles:
+    - role: ansible-role-ovirt
+      role_action: deprovision
+      delegate_to: localhost

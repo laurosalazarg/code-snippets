@@ -1,0 +1,36 @@
+- name: join server to the domain
+  hosts: all
+  vars:
+    ansible_port: 5986
+    ansible_connection: winrm
+    ansible_winrm_transport: credssp
+    ansible_winrm_server_cert_validation: ignore
+  roles:
+    - role: ad-computer-registration
+      role_action: deregister
+      computer_name: "{{ inventory_hostname }}"
+      delegate_to: "{{ dns_servers | default(omit) }}"
+      become: yes
+      become_method: runas
+      become_user: "{{ domain_admin_username }}@{{ dns_domain_name }}"
+      ansible_become_pass: "{{ domain_admin_password }}"
+    - domain
+
+  post_tasks:
+    - name: Add Ansible group to a local Administrators
+      win_group_membership:
+        name: Administrators
+        members:
+          - "{{ dns_domain_name.split('.')[0] }}\\user1"
+        state: present
+
+    - name: add remote desktop users group to a local Remote Management Users
+      win_group_membership:
+        name: Remote Management Users
+        members:
+          - "{{ dns_domain_name.split('.')[0] }}\\user1"
+        state: present
+#        become: yes
+#        become_method: runas
+#        become_user: "{{ domain_admin_username }}@{{ dns_domain_name }}"
+#        ansible_become_pass: "{{ domain_admin_password }}"

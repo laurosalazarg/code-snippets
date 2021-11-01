@@ -1,0 +1,5 @@
+iis_sites:
+  - name: Ansible Playbook Test
+    port: 8080
+    path: C:\sites\playbooktest
+iis_test_message: "Hello World!  My test IIS Server"

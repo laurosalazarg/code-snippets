@@ -1,0 +1,29 @@
+---
+providers:
+  ovirt:
+    cluster: pele-Local
+nodes:
+  - name: wintest2
+    role: windows
+    app_name: windows_demo
+    networks:
+    - name: ovirtmgmt
+      ip: 192.168.1.64
+      netmask: 255.255.255.0
+      gateway: 192.168.1.254
+      domain: home.ad
+      dns_servers:
+      - 192.168.1.254
+      - 8.8.4.4
+#    disks:
+#    - name: windows-2019-standard-core
+#      name_prefix: no
+#      size: 80GiB
+    domain: home.ad
+    memory: 4096
+    cpu: 2
+    type: server
+    user_name: vagrant
+    template: windows-2019-standard-core
+    #template: windows-2016
+    sysprep: yes

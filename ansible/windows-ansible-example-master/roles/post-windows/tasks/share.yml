@@ -1,0 +1,16 @@
+---
+
+- name: ensure shares directory is created
+  win_file:
+    path: C:\shares\{{ item }}
+    state: directory
+  loop: "{{ shares }}"
+
+- name: ensure shares exist
+  win_share:
+    name: "{{ item }}"
+    description: "{{ item }} share"
+    path: C:\shares\{{ item }}
+    list: yes
+    full: Administrators
+  loop: "{{ shares }}"

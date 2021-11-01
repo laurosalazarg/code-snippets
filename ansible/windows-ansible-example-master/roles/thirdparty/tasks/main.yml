@@ -1,0 +1,11 @@
+---
+- name: Install latest Google Chrome
+  win_chocolatey:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - googlechrome
+    - firefox
+    - flashplayerplugin
+    - 7zip.install
+    - jre8

@@ -1,0 +1,9 @@
+---
+
+- name: check for existing installation
+  win_reg_stat:
+    path: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{{ product_id }}
+  register: existing_installation
+
+- include_tasks: install.yml
+  when: not existing_installation.exists

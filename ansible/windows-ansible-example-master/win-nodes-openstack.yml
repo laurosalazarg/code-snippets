@@ -1,0 +1,13 @@
+---
+nodes:
+  - name: windows
+    role: windows
+    app_name: windows_demo
+    flavor: m1.medium
+    image: windows-2019-standard-core
+    key_name: ansible-oatakan
+    volume_size: 40
+    nics:
+      - net-name: private_network
+    os_type: windows
+    user_data: "{{ lookup('template', 'templates/userdata.txt.j2') }}"

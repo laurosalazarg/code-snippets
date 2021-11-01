@@ -1,0 +1,179 @@
+---
+- name: Create a VM from a template
+  hosts: vcenter
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: Clone the template
+    vmware_guest:
+      hostname: "{{ vcenter }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: False
+      name: "{{ template_name }}"
+      template: linux_template
+      datacenter: DC
+      folder: templates
+      resource_pool: rsc_pool
+      is_template: yes
+    tags:
+    - clone
+
+  - name: "Convert {{ template_name }} to vm"
+    vmware_guest:
+      hostname: "{{ vcenter }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      state: present
+      folder: templates
+      name: "{{ template_name }}"
+      is_template: no
+      datacenter: DC
+      resource_pool: rsc_pool
+    tags:
+    - clone
+
+  - name: "Powering on {{ template_name }}"
+    vmware_guest_powerstate:
+      hostname: "{{ vcenter }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      name: "{{ template_name }}"
+      state: powered-on
+    tags:
+    - power
+
+  - pause:
+      minutes: 3
+
+  - name: Run command inside a virtual machine
+    vmware_vm_shell:
+      hostname: "{{ vcenter }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      vm_id: "{{ template_name }}"
+      vm_id_type: vm_name
+      vm_username: "root"
+      vm_password: "password"
+      vm_shell: /bin/bash
+      vm_shell_args: ""
+      wait_for_process: yes
+      validate_certs: no
+      timeout: 180
+    tags:
+    - network
+
+  - pause:
+      minutes: 1
+    tags:
+    - network
+
+- name: Update linux
+  hosts: linuxtemplate
+  gather_facts: no
+  tasks:
+  - name: upgrade all packages
+    yum:
+      name: '*'
+      use_backend: auto
+      update_cache: yes
+      state: latest
+      disable_gpg_check: yes
+      validate_certs: no
+    tags:
+    - patches
+
+  - pause:
+      minutes: 1
+    tags:
+    - patches
+
+- name: Reboot
+  hosts: vcenter
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: Reboot
+    vmware_vm_shell:
+      hostname: "{{ vcenter }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      vm_id: "{{ template_name }}"
+      vm_id_type: vm_name
+      vm_username: "root"
+      vm_password: "password"
+      vm_shell: /sbin/reboot
+      wait_for_process: no
+      validate_certs: no
+    tags:
+     - patches
+
+  - pause:
+      minutes: 3
+    tags:
+    - patches
+
+
+  - name: Reset Template
+    vmware_vm_shell:
+      hostname: "{{ vcenter }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      vm_id: "{{ template_name }}"
+      vm_id_type: vm_name
+      vm_username: "root"
+      vm_password: "password"
+      vm_shell: /bin/bash
+      vm_shell_args: ""
+      wait_for_process: yes
+      validate_certs: no
+      timeout: 180
+    tags:
+    - reset
+
+  - name: Reboot
+    vmware_vm_shell:
+      hostname: "{{ vcenter }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      vm_id: "{{ template_name }}"
+      vm_id_type: vm_name
+      vm_username: "root"
+      vm_password: "password"
+      vm_shell: /sbin/reboot
+      wait_for_process: no
+      validate_certs: no
+    tags:
+     - reset
+
+  - name: "Powering Off {{ template_name }}"
+    vmware_guest_powerstate:
+      hostname: "{{ vcenter }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      name: "{{ template_name }}"
+      state: powered-off
+    tags:
+    - reset
+
+  - name: "Convert {{ template_name }} to template"
+    vmware_guest:
+      hostname: "{{ vcenter }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      state: present
+      folder: templates
+      name: "{{ template_name }}"
+      is_template: yes
+      datacenter: DC
+      resource_pool: rsc_pool
+    tags:
+    - convert
+
+
+
+

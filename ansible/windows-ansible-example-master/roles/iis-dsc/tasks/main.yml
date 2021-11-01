@@ -1,0 +1,74 @@
+---
+- name: Install required DSC modules
+  win_psmodule:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - xWebAdministration
+    - xNetworking
+
+- name: Install IIS
+  win_dsc:
+    resource_name: windowsfeature
+    name: Web-Server
+
+- name: Create site directory structure
+  win_dsc:
+    resource_name: file
+    ensure: Present
+    type: Directory
+    destinationpath: "{{ item.path }}"
+  with_items: "{{ iis_sites }}"
+
+- name: Create IIS Website
+  win_dsc:
+    resource_name: xWebsite
+    Ensure: Present
+    Name: "{{ item.name }}"
+    State: Started
+    PhysicalPath: "{{ item.path }}"
+    BindingInfo:
+    - Protocol: http
+      Port: 8080
+      IPAddress: '*'
+  with_items: "{{ iis_sites }}"
+  notify:
+    - stop iis service
+    - start iis service
+
+- name: Open port for site on the firewall
+  win_dsc:
+    resource_name: xFirewall
+    ensure: Present
+    name: "iisport{{ item.port }}"
+    enabled: True
+    localport: "{{ item.port }}"
+    action: Allow
+    direction: Inbound
+    protocol: TCP
+  with_items: "{{ iis_sites }}"
+  notify:
+    - stop iis service
+    - start iis service
+
+- name: Template simple web site to iis_site_path as index.html
+  win_template:
+    src: 'index.html.j2'
+    dest: '{{ item.path }}\index.html'
+  with_items: "{{ iis_sites }}"
+
+- name: proper response from iis is received
+  win_uri:
+    url: http://{{ ansible_host }}:8080/
+    return_content: yes
+    validate_certs: no
+  register: response
+  until: iis_test_message in response.content
+  retries: 10
+  delay: 1
+  ignore_errors: yes
+
+- name: output url
+  debug:
+    msg: 'application is available at http://{{ ansible_host }}:8080/'
+  when: response is success

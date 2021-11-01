@@ -1,0 +1,60 @@
+---
+- name: check openstack config file
+  stat: path="{{ config_file }}"
+  register: st
+
+- name: include openstack details
+  include_vars: "{{ config_file }}"
+  when: st.stat.exists and st.stat.isreg
+
+- name: launch a compute instance
+  os_server:
+    state: present
+    #auth:
+    #  auth_url: "{{ clouds.devstack.auth.auth_url | default(lookup('env', 'OS_AUTH_URL')) }}"
+    #  username: "{{ clouds.devstack.auth.username | default(lookup('env', 'OS_USERNAME')) }}"
+    #  password: "{{ clouds.devstack.auth.password | default(lookup('env', 'OS_PASSWORD')) }}"
+    #  project_name: "{{ clouds.devstack.auth.project_name | default(lookup('env', 'OS_PROJECT_NAME')) }}"
+    name: "{{ item.name }}"
+    image: "{{ item.image }}"
+    key_name: "{{ item.key_name }}"
+    timeout: 300
+    flavor: "{{ item.flavor }}"
+    nics: "{{ item.nics }}"
+    boot_from_volume: yes
+    terminate_volume: yes
+    volume_size: "{{ item.volume_size }}"
+    userdata: "{{ item.user_data }}"
+    meta:
+      hostname: "{{ item.name }}"
+      role: "{{ item.role }}"
+      app_name: "{{ item.app_name }}"
+    auto_ip: yes
+    wait: yes
+  async: 7200
+  poll: 0
+  register: deploy
+  with_items: "{{ nodes }}"
+  when: nodes is defined
+
+- name: Wait for instance creation to complete
+  async_status: jid="{{ item.ansible_job_id }}"
+  register: instances
+  until: instances.finished
+  retries: 300
+  delay: 10
+  with_items: "{{ deploy.results }}"
+
+- name: Waiting for servers to come online
+  wait_for:
+    host: "{{ item.openstack.public_v4|default(item.openstack.interface_ip) }}"
+    port: 5986
+    timeout: 600
+  with_items: "{{ instances.results }}"
+  when: (instances | changed) and (nodes is defined)
+
+
+
+
+
+

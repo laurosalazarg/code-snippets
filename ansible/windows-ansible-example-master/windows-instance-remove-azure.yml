@@ -1,0 +1,12 @@
+- name: Delete Windows Instance on Azure
+  hosts: localhost
+  gather_facts: False
+  connection: local
+  become: no
+  vars_files:
+    - win-nodes-azure.yml
+  vars:
+    ansible_port: 5986
+    windows: yes
+  roles:
+    - undeploy-azure

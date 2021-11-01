@@ -1,0 +1,37 @@
+---
+
+- name: check existing CI
+  snow_record:
+    state: present
+    table: cmdb_ci_win_server
+    username: "{{ sn_username }}"
+    password: "{{ sn_password }}"
+    instance: "{{ sn_instance }}"
+    number: "{{ inventory_hostname }}"
+    lookup_field: name
+  delegate_to: localhost
+  vars:
+    ansible_connection: local
+  register: check_host
+  ignore_errors: yes
+
+- name: ensure CI record exists
+  snow_record:
+    state: present
+    table: cmdb_ci_win_server
+    username: "{{ sn_username }}"
+    password: "{{ sn_password }}"
+    instance: "{{ sn_instance }}"
+    number: "{{ inventory_hostname if check_host.record is defined else omit }}"
+    data:
+      name: "{{ inventory_hostname }}"
+      host_name: "{{ ansible_hostname | lower }}"
+      ip_address: "{{ ansible_host }}"
+      mac_address: "{{ ansible_interfaces[0].macaddress }}"
+      serial_number: "{{ ansible_product_serial }}"
+      os: "{{ ansible_facts.os_family }}"
+    lookup_field: name
+  delegate_to: localhost
+  vars:
+    ansible_connection: local
+  register: new_host
